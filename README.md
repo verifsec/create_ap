@@ -1,6 +1,6 @@
 ## Features
 * Create an AP (Access Point) at any channel.
-* Choose one of the following encryptions: WPA, WPA2, WPA/WPA2, Open (no encryption).
+* Choose one of the following encryptions: WPA, WPA2, WPA/WPA2, Open, **WEP**.
 * Hide your SSID.
 * Disable communication between clients (client isolation).
 * IEEE 802.11n & 802.11ac support
@@ -28,17 +28,9 @@
 
 ## Installation
 ### Generic
-    git clone https://github.com/oblique/create_ap
+    git clone https://github.com/verifsec/create_ap
     cd create_ap
     make install
-
-### ArchLinux
-    pacman -S create_ap
-
-### Gentoo
-    emerge layman
-    layman -f -a jorgicio
-    emerge net-wireless/create_ap
 
 ## Examples
 ### No passphrase (open network):
@@ -46,6 +38,9 @@
 
 ### WPA + WPA2 passphrase:
     create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
+
+### WEP passphrase:
+    create_ap --wep wlan0 eth0 MyAccessPoint MyPassPhrase
 
 ### AP without Internet sharing:
     create_ap -n wlan0 MyAccessPoint MyPassPhrase
