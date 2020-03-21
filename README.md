@@ -39,7 +39,7 @@
 ### WPA + WPA2 passphrase:
     create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
 
-### WEP passphrase:
+### WEP key:
     create_ap --wep wlan0 eth0 MyAccessPoint MyPassPhrase
 
 ### AP without Internet sharing:
