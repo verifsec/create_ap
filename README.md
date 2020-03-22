@@ -1,6 +1,7 @@
 ## Features
 * Create an AP (Access Point) at any channel.
 * Choose one of the following encryptions: WPA, WPA2, WPA/WPA2, Open, **WEP**.
+* Choose one of the foloowing modes: **TKIP** or **CCMP**
 * Hide your SSID.
 * Disable communication between clients (client isolation).
 * IEEE 802.11n & 802.11ac support
@@ -38,6 +39,13 @@
 
 ### WPA + WPA2 passphrase:
     create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
+
+### WPA-TKIP:
+    create_ap -w 1 --tkip wlan0 eth0 MyAccessPoint MyPassPhrase
+    (Note: Realtek drivers usually have problems with WPA1, forcing WPA2)
+
+### WPA2-CCMP:
+    create_ap -w 2 --ccmp wlan0 eth0 MyAccessPoint MyPassPhrase
 
 ### WEP key:
     create_ap --wep wlan0 eth0 MyAccessPoint MyPassPhrase
