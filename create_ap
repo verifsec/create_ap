@@ -1725,7 +1725,7 @@ EOF
         else
         cat << EOF >> $CONFDIR/hostapd.conf
 wpa_pairwise=TKIP CCMP
-rsn_pairwise=CCMP
+rsn_pairwise=TKIP CCMP
 EOF
         fi
     else
