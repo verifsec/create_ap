@@ -1730,7 +1730,7 @@ if [[ -n "$PASSPHRASE" ]]; then
         else
             WPA_KEY_TYPE=psk
         fi
-
+	# WPA/WEP config
         if [[ $USE_TKIP -eq 1 ]]; then
             cat << EOF >> $CONFDIR/hostapd.conf
 wpa=${WPA_VERSION}
