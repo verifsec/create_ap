@@ -1,6 +1,6 @@
 ## Features
 * Create an AP (Access Point) at any channel.
-* Choose one of the following encryptions: WPA, WPA2, WPA/WPA2, Open, **WEP**, **WPA3**(SAE/Enhanced Open).
+* Choose one of the following encryptions: WPA, WPA2, WPA/WPA2, Open, **WEP**, **WPA3** (SAE/Enhanced Open).
 * Choose one of the folowing modes: **TKIP** or **CCMP**
 * Hide your SSID.
 * Disable communication between clients (client isolation).
@@ -95,13 +95,14 @@ Using the persistent [systemd](https://wiki.archlinux.org/index.php/systemd#Basi
 
 
 ## Build hosapd for WPA3
-   apt install pkg-config libnl-3-dev libssl-dev libnl-genl-3-dev
-   wget https://w1.fi/releases/hostapd-2.7.tar.gz  # for example
-   tar xvzf ./hostapd-2.7.tar.gz
-   cd ./hostapd-2.7/hostapd/
-   echo -ne "\nCONFIG_IEEE80211W=y\nCONFIG_DPP=y\nCONFIG_SAE=y\nCONFIG_SUITEB=y" >> ./defconfig
-   cp ./defconfig .config
-   make -j 2
+### hostapd-2.7
+    apt install pkg-config libnl-3-dev libssl-dev libnl-genl-3-dev
+    wget https://w1.fi/releases/hostapd-2.7.tar.gz
+    tar xvzf ./hostapd-2.7.tar.gz
+    cd ./hostapd-2.7/hostapd/
+    echo -ne "\nCONFIG_IEEE80211W=y\nCONFIG_DPP=y\nCONFIG_SAE=y\nCONFIG_SUITEB=y" >> ./defconfig
+    cp ./defconfig .config
+    make -j 2
 
 ## License
 FreeBSD
