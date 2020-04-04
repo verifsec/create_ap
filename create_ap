@@ -40,10 +40,13 @@ usage() {
     echo "                          Use: 'nat' for NAT (default)"
     echo "                               'bridge' for bridging"
     echo "                               'none' for no Internet sharing (equivalent to -n)"
+    echo "  -x </path/to/hostapd>   Choose your own hostapd"
     echo "  --psk                   Use 64 hex digits pre-shared-key instead of passphrase"
+    echo "  --enhanced_open         Use Opportunistic Wireless Encryption (OWE)"
     echo "  --wep                   Use 10 or 26 hex digits WEP key instead of WPA series"
     echo "  --tkip                  Use WPA/WPA2-TKIP "
     echo "  --ccmp                  Use WPA/WPA2-CCMP"
+    echo "  --sae                   Use SAE(Dragonfly Handshake)"
     echo "  --hidden                Make the Access Point hidden (do not broadcast the SSID)"
     echo "  --mac-filter            Enable MAC address filtering"
     echo "  --mac-filter-accept     Location of MAC address filter list (defaults to /etc/hostapd/hostapd.accept)"
@@ -649,8 +652,11 @@ DAEMON_LOGFILE=/dev/null
 NO_HAVEGED=0
 USE_PSK=0
 USE_WEP=0
+USE_DEFAULT_HOSTAPD=1
 USE_TKIP=0
 USE_CCMP=0
+USE_SAE=0
+USE_OWE=0
 
 HOSTAPD_DEBUG_ARGS=
 REDIRECT_TO_LOCALHOST=0
@@ -658,7 +664,7 @@ REDIRECT_TO_LOCALHOST=0
 CONFIG_OPTS=(CHANNEL GATEWAY WPA_VERSION ETC_HOSTS DHCP_DNS NO_DNS NO_DNSMASQ HIDDEN MAC_FILTER MAC_FILTER_ACCEPT ISOLATE_CLIENTS
              SHARE_METHOD IEEE80211N IEEE80211AC HT_CAPAB VHT_CAPAB DRIVER NO_VIRT COUNTRY FREQ_BAND
              NEW_MACADDR DAEMONIZE DAEMON_PIDFILE DAEMON_LOGFILE NO_HAVEGED WIFI_IFACE INTERNET_IFACE
-             SSID PASSPHRASE USE_PSK USE_WEP USE_TKIP USE_CCMP)
+             SSID PASSPHRASE USE_PSK USE_WEP USE_TKIP USE_CCMP USE_SAE USE_OWE)
 
 FIX_UNMANAGED=0
 LIST_RUNNING=0
@@ -1053,7 +1059,7 @@ for ((i=0; i<$#; i++)); do
     fi
 done
 
-GETOPT_ARGS=$(getopt -o hc:w:g:de:nm: -l "help","hidden","hostapd-debug:","redirect-to-localhost","mac-filter","mac-filter-accept:","isolate-clients","ieee80211n","ieee80211ac","ht_capab:","vht_capab:","driver:","no-virt","fix-unmanaged","country:","freq-band:","mac:","dhcp-dns:","daemon","pidfile:","logfile:","stop:","list","list-running","list-clients:","version","psk","wep","tkip","ccmp","no-haveged","no-dns","no-dnsmasq","mkconfig:","config:" -n "$PROGNAME" -- "$@")
+GETOPT_ARGS=$(getopt -o hc:w:g:de:nm:x: -l "help","hidden","hostapd-debug:","redirect-to-localhost","mac-filter","mac-filter-accept:","isolate-clients","ieee80211n","ieee80211ac","ht_capab:","vht_capab:","driver:","no-virt","fix-unmanaged","country:","freq-band:","mac:","dhcp-dns:","daemon","pidfile:","logfile:","stop:","list","list-running","list-clients:","version","psk","wep","tkip","ccmp","sae","enhanced_open","no-haveged","no-dns","no-dnsmasq","mkconfig:","config:" -n "$PROGNAME" -- "$@")
 [[ $? -ne 0 ]] && exit 1
 eval set -- "$GETOPT_ARGS"
 
@@ -1222,6 +1228,14 @@ while :; do
             shift
             USE_CCMP=1
             ;;
+        --sae)
+            shift
+            USE_SAE=1
+            ;;
+        --enhanced_open)
+            shift
+            USE_OWE=1
+            ;;        
         --no-dns)
             shift
             NO_DNS=1
@@ -1253,6 +1267,12 @@ while :; do
             ;;
         --config)
             shift
+            shift
+            ;;
+        -x)
+            shift
+            USE_DEFAULT_HOSTAPD=0
+            HOSTAPD="$1"
             shift
             ;;
         --)
@@ -1384,12 +1404,15 @@ if ! can_be_sta_and_ap ${WIFI_IFACE}; then
     fi
 fi
 
-HOSTAPD=$(which hostapd)
 
-if [[ ! -x "$HOSTAPD" ]]; then
-    echo "ERROR: hostapd not found." >&2
-    exit 1
+if [[ $USE_DEFAULT_HOSTAPD -eq 1 ]]; then
+    HOSTAPD=$(which hostapd)
+    if [[ ! -x "$HOSTAPD" ]]; then
+        echo "ERROR: hostapd not found." >&2
+        exit 1
+    fi
 fi
+
 
 if [[ $(get_adapter_kernel_module ${WIFI_IFACE}) =~ ^(8192[cd][ue]|8723a[sue])$ ]]; then
     if ! strings "$HOSTAPD" | grep -m1 rtl871xdrv > /dev/null 2>&1; then
@@ -1707,23 +1730,40 @@ if [[ -n "$PASSPHRASE" ]]; then
         else
             WPA_KEY_TYPE=psk
         fi
-        cat << EOF >> $CONFDIR/hostapd.conf
+
+        if [[ $USE_TKIP -eq 1 ]]; then
+            cat << EOF >> $CONFDIR/hostapd.conf
 wpa=${WPA_VERSION}
 wpa_${WPA_KEY_TYPE}=${PASSPHRASE}
 wpa_key_mgmt=WPA-PSK
-EOF
-        if [[ $USE_TKIP -eq 1 ]]; then
-        cat << EOF >> $CONFDIR/hostapd.conf
 wpa_pairwise=TKIP
 rsn_pairwise=TKIP
 EOF
         elif [[ $USE_CCMP -eq 1 ]]; then
-        cat << EOF >> $CONFDIR/hostapd.conf
+            cat << EOF >> $CONFDIR/hostapd.conf
+wpa=${WPA_VERSION}
+wpa_${WPA_KEY_TYPE}=${PASSPHRASE}
+wpa_key_mgmt=WPA-PSK
 wpa_pairwise=CCMP
+rsn_pairwise=CCMP
+EOF
+        elif [[ $USE_SAE -eq 1 ]]; then
+            IS_SUPPORTED=$(get_adapter_info "$1" | grep -E 'grep 00-0f-ac:8' > /dev/null 2>&1)
+            if [[ ! -x "$IS_SUPPORTED" ]]; then
+                echo "ERROR: Your adaptor does not support SAE." >&2
+                exit 1
+            fi
+            cat << EOF >> $CONFDIR/hostapd.conf
+wpa=2
+wpa_passphrase=${PASSPHRASE}
+wpa_key_mgmt=SAE
 rsn_pairwise=CCMP
 EOF
         else
         cat << EOF >> $CONFDIR/hostapd.conf
+wpa=${WPA_VERSION}
+wpa_${WPA_KEY_TYPE}=${PASSPHRASE}
+wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP CCMP
 rsn_pairwise=TKIP CCMP
 EOF
@@ -1734,6 +1774,13 @@ wep_default_key=0
 wep_key0=${PASSPHRASE}
 EOF
     fi
+elif [[ $USE_OWE -eq 1 ]]; then
+    cat << EOF >> $CONFDIR/hostapd.conf
+wpa=2
+ieee80211w=2
+wpa_key_mgmt=OWE
+rsn_pairwise=CCMP
+EOF
 fi
 
 if [[ "$SHARE_METHOD" == "bridge" ]]; then
@@ -1934,9 +1981,4 @@ fi
 
 clean_exit
 
-# Local Variables:
-# tab-width: 4
-# indent-tabs-mode: nil
-# End:
-
-# vim: et sts=4 sw=4
+# I am not a vimmer but a emacser. 

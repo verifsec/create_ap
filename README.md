@@ -1,7 +1,7 @@
 ## Features
 * Create an AP (Access Point) at any channel.
-* Choose one of the following encryptions: WPA, WPA2, WPA/WPA2, Open, **WEP**.
-* Choose one of the foloowing modes: **TKIP** or **CCMP**
+* Choose one of the following encryptions: WPA, WPA2, WPA/WPA2, Open, **WEP**, **WPA3**(SAE/Enhanced Open).
+* Choose one of the folowing modes: **TKIP** or **CCMP**
 * Hide your SSID.
 * Disable communication between clients (client isolation).
 * IEEE 802.11n & 802.11ac support
@@ -37,6 +37,13 @@
 ### No passphrase (open network):
     create_ap wlan0 eth0 MyAccessPoint
 
+### No passphrase but encryption (Enhanced Open)
+    create_ap --enhanced_open -x /path/to/hostapd wlan0 eth0 MyAccessPoint
+    (Note: You have better use hostapd 2.7 <=. See *Build hostapd for WPA3*.)
+
+### WEP key:
+    create_ap --wep wlan0 eth0 MyAccessPoint MyPassPhrase
+
 ### WPA + WPA2 passphrase:
     create_ap wlan0 eth0 MyAccessPoint MyPassPhrase
 
@@ -47,8 +54,9 @@
 ### WPA2-CCMP:
     create_ap -w 2 --ccmp wlan0 eth0 MyAccessPoint MyPassPhrase
 
-### WEP key:
-    create_ap --wep wlan0 eth0 MyAccessPoint MyPassPhrase
+### WPA3 (SAE Dragonfly Handshake):
+    create_ap --sae --x /path/to/hostapd wlan0 eth0 MyAccessPoint MyPassPhrase
+    (Note: You have better use hostapd 2.7 <=. See *Build hostapd for WPA3*.)
 
 ### AP without Internet sharing:
     create_ap -n wlan0 MyAccessPoint MyPassPhrase
@@ -85,6 +93,15 @@ Using the persistent [systemd](https://wiki.archlinux.org/index.php/systemd#Basi
 ### Start on boot:
     systemctl enable create_ap
 
+
+## Build hosapd for WPA3
+   apt install pkg-config libnl-3-dev libssl-dev libnl-genl-3-dev
+   wget https://w1.fi/releases/hostapd-2.7.tar.gz  # for example
+   tar xvzf ./hostapd-2.7.tar.gz
+   cd ./hostapd-2.7/hostapd/
+   echo -ne "\nCONFIG_IEEE80211W=y\nCONFIG_DPP=y\nCONFIG_SAE=y\nCONFIG_SUITEB=y" >> ./defconfig
+   cp ./defconfig .config
+   make -j 2
 
 ## License
 FreeBSD
