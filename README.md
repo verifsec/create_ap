@@ -37,9 +37,9 @@
 ### No passphrase (open network):
     create_ap wlan0 eth0 MyAccessPoint
 
-### No passphrase but encryption (Enhanced Open)
-    create_ap --enhanced_open -x /path/to/hostapd wlan0 eth0 MyAccessPoint
-    (Note: You have better use hostapd 2.7 <=. See *Build hostapd for WPA3*.)
+### No passphrase but encrypted (Enhanced Open)
+    create_ap --enhanced_open -x /path/to/hostapd/ wlan0 eth0 MyAccessPoint
+    (Note: You have better use hostapd 2.7 <=. See "Build hostapd for WPA3".)
 
 ### WEP key:
     create_ap --wep wlan0 eth0 MyAccessPoint MyPassPhrase
@@ -54,9 +54,9 @@
 ### WPA2-CCMP:
     create_ap -w 2 --ccmp wlan0 eth0 MyAccessPoint MyPassPhrase
 
-### WPA3 (SAE Dragonfly Handshake):
-    create_ap --sae --x /path/to/hostapd wlan0 eth0 MyAccessPoint MyPassPhrase
-    (Note: You have better use hostapd 2.7 <=. See *Build hostapd for WPA3*.)
+### WPA3 (SAE Dragonfly):
+    create_ap --sae -x /path/to/hostapd/ wlan0 eth0 MyAccessPoint MyPassPhrase
+    (Note: You have better use hostapd 2.7 <=. See "Build hostapd for WPA3".)
 
 ### AP without Internet sharing:
     create_ap -n wlan0 MyAccessPoint MyPassPhrase
@@ -104,5 +104,9 @@ Using the persistent [systemd](https://wiki.archlinux.org/index.php/systemd#Basi
     cp ./defconfig .config
     make -j 2
 
+### WPA3 Dragonfly
+    create_ap -m nat --sae -x ./ wlan0 eth0 MyAccessPoint MyPassPhrase
+
 ## License
 FreeBSD
+

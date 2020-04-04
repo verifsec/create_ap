@@ -40,7 +40,7 @@ usage() {
     echo "                          Use: 'nat' for NAT (default)"
     echo "                               'bridge' for bridging"
     echo "                               'none' for no Internet sharing (equivalent to -n)"
-    echo "  -x </path/to/hostapd>   Choose your own hostapd"
+    echo "  -x </path/to/apd_dir>   Choose directory include your own hostapd"
     echo "  --psk                   Use 64 hex digits pre-shared-key instead of passphrase"
     echo "  --enhanced_open         Use Opportunistic Wireless Encryption (OWE)"
     echo "  --wep                   Use 10 or 26 hex digits WEP key instead of WPA series"
@@ -1272,7 +1272,7 @@ while :; do
         -x)
             shift
             USE_DEFAULT_HOSTAPD=0
-            HOSTAPD="$1"
+            HOSTAPD="$1/hostapd"
             shift
             ;;
         --)
