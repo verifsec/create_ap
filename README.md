@@ -100,7 +100,7 @@ Using the persistent [systemd](https://wiki.archlinux.org/index.php/systemd#Basi
     wget https://w1.fi/releases/hostapd-2.7.tar.gz
     tar xvzf ./hostapd-2.7.tar.gz
     cd ./hostapd-2.7/hostapd/
-    echo -ne "\nCONFIG_IEEE80211W=y\nCONFIG_DPP=y\nCONFIG_SAE=y\nCONFIG_SUITEB=y" >> ./defconfig
+    echo -ne "\nCONFIG_OWE=y\nCONFIG_IEEE80211W=y\nCONFIG_DPP=y\nCONFIG_SAE=y\nCONFIG_SUITEB=y" >> ./defconfig
     cp ./defconfig .config
     make -j 2
 
