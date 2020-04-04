@@ -1777,7 +1777,6 @@ EOF
 elif [[ $USE_OWE -eq 1 ]]; then
     cat << EOF >> $CONFDIR/hostapd.conf
 wpa=2
-ieee80211w=2
 wpa_key_mgmt=OWE
 rsn_pairwise=CCMP
 EOF
