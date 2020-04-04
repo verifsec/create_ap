@@ -49,7 +49,7 @@
 
 ### WPA-TKIP:
     create_ap -w 1 --tkip wlan0 eth0 MyAccessPoint MyPassPhrase
-    (Note: Realtek drivers usually have problems with WPA1, forcing WPA2)
+    (Note: Realtek drivers usually have problems with WPA1, forcing WPA2.)
 
 ### WPA2-CCMP:
     create_ap -w 2 --ccmp wlan0 eth0 MyAccessPoint MyPassPhrase
