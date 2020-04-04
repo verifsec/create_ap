@@ -94,7 +94,7 @@ Using the persistent [systemd](https://wiki.archlinux.org/index.php/systemd#Basi
     systemctl enable create_ap
 
 
-## Build hosapd for WPA3
+## Build hostapd for WPA3
 ### hostapd-2.7
     apt install pkg-config libnl-3-dev libssl-dev libnl-genl-3-dev
     wget https://w1.fi/releases/hostapd-2.7.tar.gz
