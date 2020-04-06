@@ -1748,8 +1748,7 @@ wpa_pairwise=CCMP
 rsn_pairwise=CCMP
 EOF
         elif [[ $USE_SAE -eq 1 ]]; then
-            IS_SUPPORTED=$(get_adapter_info "$1" | grep -E 'grep 00-0f-ac:8' > /dev/null 2>&1)
-            if [[ ! -x "$IS_SUPPORTED" ]]; then
+            if [[ ! $(get_adapter_info $WIFI_IFACE) =~ "00-0f-ac:8" ]]; then
                 echo "ERROR: Your adaptor does not support SAE." >&2
                 exit 1
             fi
